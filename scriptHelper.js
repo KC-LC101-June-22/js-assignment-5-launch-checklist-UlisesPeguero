@@ -39,10 +39,12 @@ function formSubmission(document, list, pilot, copilot, fuelLevel, cargoLevel) {
 	const fuelStatus = document.getElementById('fuelStatus');
 	const cargotStatus = document.getElementById('cargoStatus');
 	let readyForLaunch = true;
+	let emptyFields = [];
 
 	if (validateInput(pilot) !== 'Empty') {
 		pilotStatus.innerText = `Pilot ${pilot} is ready for launch`;
 	} else {
+		emptyFields.push('Pilot');
 		readyForLaunch = false;
 		pilotStatus.innerText = 'Not Ready';
 	}
@@ -50,6 +52,7 @@ function formSubmission(document, list, pilot, copilot, fuelLevel, cargoLevel) {
 	if (validateInput(copilot) !== 'Empty') {
 		copilotStatus.innerText = `Copilot ${copilot} is ready for launch`;
 	} else {
+		emptyFields.push('Co-Pilot');
 		readyForLaunch = false;
 		copilotStatus.innerText = 'Not Ready';
 	}
@@ -57,6 +60,7 @@ function formSubmission(document, list, pilot, copilot, fuelLevel, cargoLevel) {
 		validateInput(fuelLevel) === 'Is a Number' &&
 		Number(fuelLevel) < 10_000
 	) {
+		if (validateInput(fuelLevel) === 'Empty') emptyFields.push('Fuel');
 		readyForLaunch = false;
 		fuelStatus.innerText = 'Not enough fuel for the journey.';
 	}
@@ -64,6 +68,7 @@ function formSubmission(document, list, pilot, copilot, fuelLevel, cargoLevel) {
 		validateInput(cargoLevel) === 'Is a Number' &&
 		Number(cargoLevel) > 10_000
 	) {
+		if (validateInput(cargoLevel) === 'Empty') emptyFields.push('Cargo');
 		readyForLaunch = false;
 		cargotStatus.innerText = 'Too much mass for the shuttle to take off.';
 	}
