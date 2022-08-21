@@ -630,50 +630,57 @@ module.exports = self.fetch.bind(self);
 
 },{}],3:[function(require,module,exports){
 window.addEventListener('load', function () {
-	let listedPlanets;
-	// Set listedPlanetsResponse equal to the value returned by calling myFetch()
-	let listedPlanetsResponse = myFetch();
-	listedPlanetsResponse
-		.then(function (result) {
-			listedPlanets = result;
-			console.log(listedPlanets);
-		})
-		.then(function () {
-			let {
-				name,
-				diameter,
-				star,
-				distance,
-				moons,
-				image: imageUrl,
-			} = pickPlanet(listedPlanets);
-			addDestinationInfo(
-				document,
-				name,
-				diameter,
-				star,
-				distance,
-				moons,
-				imageUrl
-			);
-		});
+  function setup() {
+    const faultyItems = document.getElementById('faultyItems');
 
-	const testForm = document
-		.getElementById('launchForm')
-		.getElementsByTagName('form')[0];
-	testForm.onsubmit = (event) => {
-		event.preventDefault();
-		let getValue = (name) =>
-			document.querySelector(`input[name=${name}]`).value;
-		formSubmission(
-			document,
-			document.getElementById('faultyItems'),
-			getValue('pilotName'),
-			getValue('copilotName'),
-			getValue('fuelLevel'),
-			getValue('cargoMass')
-		);
-	};
+    faultyItems.style.visibility = 'hidden';
+  }
+
+  let listedPlanets;
+  // Set listedPlanetsResponse equal to the value returned by calling myFetch()
+  let listedPlanetsResponse = myFetch();
+  listedPlanetsResponse
+    .then(function (result) {
+      listedPlanets = result;
+      console.log(listedPlanets);
+    })
+    .then(function () {
+      let {
+        name,
+        diameter,
+        star,
+        distance,
+        moons,
+        image: imageUrl,
+      } = pickPlanet(listedPlanets);
+      addDestinationInfo(
+        document,
+        name,
+        diameter,
+        star,
+        distance,
+        moons,
+        imageUrl
+      );
+    });
+
+  const testForm = document
+    .getElementById('launchForm')
+    .getElementsByTagName('form')[0];
+  testForm.onsubmit = event => {
+    event.preventDefault();
+    let getValue = name => document.querySelector(`input[name=${name}]`).value;
+    formSubmission(
+      document,
+      document.getElementById('faultyItems'),
+      getValue('pilotName'),
+      getValue('copilotName'),
+      getValue('fuelLevel'),
+      getValue('cargoMass')
+    );
+  };
+
+  setup();
 });
 
 },{}],4:[function(require,module,exports){
@@ -681,17 +688,17 @@ window.addEventListener('load', function () {
 require('isomorphic-fetch');
 
 function addDestinationInfo(
-	document,
-	name,
-	diameter,
-	star,
-	distance,
-	moons,
-	imageUrl
+  document,
+  name,
+  diameter,
+  star,
+  distance,
+  moons,
+  imageUrl
 ) {
-	// Here is the HTML formatting for our mission target div.
-	const missionTarget = document.getElementById('missionTarget');
-	missionTarget.innerHTML = `
+  // Here is the HTML formatting for our mission target div.
+  const missionTarget = document.getElementById('missionTarget');
+  missionTarget.innerHTML = `
     <h2>Mission Destination</h2>
     <ol>
         <li>Name: ${name} </li>
@@ -705,71 +712,95 @@ function addDestinationInfo(
 }
 
 function validateInput(testInput) {
-	if (testInput === '') return 'Empty';
-	testInput = Number(testInput);
-	if (isNaN(testInput)) return 'Not a Number';
-	return 'Is a Number';
+  if (testInput === '') return 'Empty';
+  testInput = Number(testInput);
+  if (isNaN(testInput)) return 'Not a Number';
+  return 'Is a Number';
+}
+
+function windowAlert(message) {
+  if (typeof window !== 'undefined') window.alert(message);
 }
 
 function formSubmission(document, list, pilot, copilot, fuelLevel, cargoLevel) {
-	console.log(list);
-	const launchStatus = document.getElementById('launchStatus');
-	const pilotStatus = document.getElementById('pilotStatus');
-	const copilotStatus = document.getElementById('copilotStatus');
-	const fuelStatus = document.getElementById('fuelStatus');
-	const cargotStatus = document.getElementById('cargoStatus');
-	let readyForLaunch = true;
+  const launchStatus = document.getElementById('launchStatus');
+  const pilotStatus = document.getElementById('pilotStatus');
+  const copilotStatus = document.getElementById('copilotStatus');
+  const fuelStatus = document.getElementById('fuelStatus');
+  const cargotStatus = document.getElementById('cargoStatus');
+  let readyForLaunch = true;
+  let emptyFields = [];
 
-	if (validateInput(pilot) !== 'Empty') {
-		pilotStatus.innerText = `Pilot ${pilot} is ready for launch`;
-	} else {
-		readyForLaunch = false;
-		pilotStatus.innerText = 'Not Ready';
-	}
+  if (validateInput(pilot) !== 'Empty') {
+    pilotStatus.innerHTML = `Pilot ${pilot} is ready for launch`;
+  } else {
+    emptyFields.push('Pilot');
+    readyForLaunch = false;
+    pilotStatus.innerHTML = 'Not Ready';
+  }
 
-	if (validateInput(copilot) !== 'Empty') {
-		copilotStatus.innerText = `Copilot ${copilot} is ready for launch`;
-	} else {
-		readyForLaunch = false;
-		copilotStatus.innerText = 'Not Ready';
-	}
-	if (
-		validateInput(fuelLevel) === 'Is a Number' &&
-		Number(fuelLevel) < 10_000
-	) {
-		readyForLaunch = false;
-		fuelStatus.innerText = 'Not enough fuel for the journey.';
-	}
-	if (
-		validateInput(cargoLevel) === 'Is a Number' &&
-		Number(cargoLevel) > 10_000
-	) {
-		readyForLaunch = false;
-		cargotStatus.innerText = 'Too much mass for the shuttle to take off.';
-	}
+  if (validateInput(copilot) !== 'Empty') {
+    copilotStatus.innerHTML = `Co-pilot ${copilot} is ready for launch`;
+  } else {
+    emptyFields.push('Co-Pilot');
+    readyForLaunch = false;
+    copilotStatus.innerHTML = 'Not Ready';
+  }
 
-	if (!readyForLaunch) {
-		list.style.visibility = 'visible';
-		launchStatus.innerText = 'Shuttle is not ready for launch';
-		launchStatus.style.color = 'rgb(199, 37, 78)';
-	} else {
-		list.style.visibility = 'hidden';
-		launchStatus.innerText = 'Shuttle is ready for launch';
-		launchStatus.style.color = 'green';
-	}
+  if (validateInput(fuelLevel) === 'Is a Number') {
+    if (Number(fuelLevel) < 10_000) {
+      readyForLaunch = false;
+      fuelStatus.innerHTML = 'Fuel level too low for launch';
+    } else fuelStatus.innerHTML = 'Fuel level high enough for launch';
+  } else if (validateInput(fuelLevel) === 'Empty') {
+    readyForLaunch = false;
+    emptyFields.push('Fuel');
+  } else
+    windowAlert(
+      `Fuel level input must be a valid number: invalid input = ${fuelLevel}`
+    );
+
+  if (validateInput(cargoLevel) === 'Is a Number') {
+    if (Number(cargoLevel) > 10_000) {
+      readyForLaunch = false;
+      cargotStatus.innerHTML = 'Cargo mass too heavy for launch';
+    } else cargotStatus.innerHTML = 'Cargo mass low enough for launch';
+  } else if (validateInput(cargoLevel) === 'Empty') {
+    emptyFields.push('Cargo');
+    readyForLaunch = false;
+  } else
+    windowAlert(
+      `Cargo level input must be a valid number: wrong input = ${cargoLevel}`
+    );
+
+  list.style.visibility = 'visible';
+  if (!readyForLaunch) {
+    launchStatus.innerHTML = 'Shuttle Not Ready for Launch';
+    launchStatus.style.color = 'rgb(199, 37, 78)';
+    // check for empty inputs
+    if (emptyFields.length > 0)
+      windowAlert(
+        `All fields are required, the following data is missing: \n- ${emptyFields.join(
+          '\n- '
+        )}`
+      );
+  } else {
+    launchStatus.innerHTML = 'Shuttle is Ready for Launch';
+    launchStatus.style.color = 'rgb(65, 159, 106)';
+  }
 }
 
 async function myFetch() {
-	let planetsReturned;
-	planetsReturned = await fetch(
-		'https://handlers.education.launchcode.org/static/planets.json'
-	).then((response) => response.json());
-	return planetsReturned;
+  let planetsReturned;
+  planetsReturned = await fetch(
+    'https://handlers.education.launchcode.org/static/planets.json'
+  ).then(response => response.json());
+  return planetsReturned;
 }
 
 function pickPlanet(planets) {
-	let randomIndex = Math.floor(Math.random() * (planets.length + 1));
-	return planets[randomIndex];
+  let randomIndex = Math.floor(Math.random() * (planets.length + 1));
+  return planets[randomIndex];
 }
 
 module.exports.addDestinationInfo = addDestinationInfo;
